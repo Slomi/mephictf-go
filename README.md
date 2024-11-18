@@ -35,6 +35,7 @@
    - [packagemanager](/packagemanager/packagemanager.go)
 2. Packages, structs, interfaces, stdlib and iterators
    - [shapes](/shapes/shapes.go)
+   - [functional](/functional/functional.go)
 
 ## Contribution
 
