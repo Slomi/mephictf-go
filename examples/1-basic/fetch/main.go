@@ -10,9 +10,10 @@ func main() {
 	urls := os.Args[1:]
 	errs := make(chan error, len(urls))
 	for _, url := range urls {
-		go func(url string) {
+		f := func(url string) {
 			errs <- fetchAndPrint(url)
-		}(url)
+		}
+		go f(url)
 	}
 	for range urls {
 		err := <-errs

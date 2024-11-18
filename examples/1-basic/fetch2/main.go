@@ -9,7 +9,7 @@ import (
 func main() {
 	for _, url := range os.Args[1:] {
 		if err := fetchAndPrint(url); err != nil {
-			fmt.Fprintf(os.Stderr, "fetch: %s\n", err.Error())
+			fmt.Fprintf(os.Stderr, "fetchAndPrint: %s\n", err.Error())
 			os.Exit(1)
 		}
 	}
