@@ -10,7 +10,7 @@ type Stream struct {
 }
 
 // NewStream creates a new Stream from a slice of integers.
-func NewStream(values []int) *Stream {
+func NewStream(values iter.Seq[int]) *Stream {
 	// TODO: Implement this function
 	return nil
 }

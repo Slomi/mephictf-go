@@ -1,6 +1,8 @@
 package functional
 
 import (
+	"iter"
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -31,11 +33,8 @@ func TestNewStream(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			stream := NewStream(tc.input)
-			var result []int
-			stream.ForEach(func(n int) {
-				result = append(result, n)
-			})
+			stream := NewStream(slices.Values(tc.input))
+			result := slices.Collect(stream.Iterate())
 			require.Equal(t, tc.expected, result)
 		})
 	}
@@ -70,12 +69,9 @@ func TestStreamMap(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			stream := NewStream(tc.input)
+			stream := NewStream(slices.Values(tc.input))
 			mapped := stream.Map(tc.f)
-			var result []int
-			mapped.ForEach(func(n int) {
-				result = append(result, n)
-			})
+			result := slices.Collect(mapped.Iterate())
 			require.Equal(t, tc.expected, result)
 		})
 	}
@@ -110,12 +106,9 @@ func TestStreamFilter(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			stream := NewStream(tc.input)
+			stream := NewStream(slices.Values(tc.input))
 			filtered := stream.Filter(tc.predicate)
-			var result []int
-			filtered.ForEach(func(n int) {
-				result = append(result, n)
-			})
+			result := slices.Collect(filtered.Iterate())
 			require.Equal(t, tc.expected, result)
 		})
 	}
@@ -150,12 +143,9 @@ func TestStreamTake(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			stream := NewStream(tc.input)
+			stream := NewStream(slices.Values(tc.input))
 			taken := stream.Take(tc.n)
-			var result []int
-			taken.ForEach(func(n int) {
-				result = append(result, n)
-			})
+			result := slices.Collect(taken.Iterate())
 			require.Equal(t, tc.expected, result)
 		})
 	}
@@ -196,12 +186,9 @@ func TestStreamDrop(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			stream := NewStream(tc.input)
+			stream := NewStream(slices.Values(tc.input))
 			dropped := stream.Drop(tc.n)
-			var result []int
-			dropped.ForEach(func(n int) {
-				result = append(result, n)
-			})
+			result := slices.Collect(dropped.Iterate())
 			require.Equal(t, tc.expected, result)
 		})
 	}
@@ -242,24 +229,47 @@ func TestStreamFoldLeft(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			stream := NewStream(tc.input)
+			stream := NewStream(slices.Values(tc.input))
 			result := stream.FoldLeft(tc.f)
 			require.Equal(t, tc.expected, result)
 		})
 	}
 }
 
-func TestStreamCombined(t *testing.T) {
-	stream := NewStream([]int{1, 2, 3, 4, 5})
+func TestInfiniteSequence(t *testing.T) {
+	count := func(x int) iter.Seq[int] {
+		return func(yield func(int) bool) {
+			for {
+				if !yield(x) {
+					break
+				}
+				x += 1
+			}
+		}
+	}
 
-	it := stream.Map(func(x int) int { return x * 3 }).
+	stream := NewStream(count(1))
+	result := stream.
+		Map(func(x int) int { return x * 2 }).
+		Drop(10).
+		Filter(func(x int) bool { return x%3 == 0 }).
+		Take(5).
+		FoldLeft(func(acc, x int) int { return acc + x })
+
+	require.Equal(t, 180, result)
+}
+
+func TestStreamCombined(t *testing.T) {
+	stream := NewStream(slices.Values([]int{1, 2, 3, 4, 5, 6, 7}))
+
+	it := stream.
+		Map(func(x int) int { return x * 3 }).
 		Filter(func(x int) bool { return x%2 != 0 }).
-		Take(2).
+		Drop(1).
+		Drop(2).
+		Map(func(x int) int { return x + 1 }).
 		Iterate()
 
-	result := []int{}
-	for x := range it {
-		result = append(result, x)
-	}
-	require.Equal(t, []int{3, 9}, result)
+	result := slices.Collect(it)
+	require.Equal(t, []int{10, 16}, result)
 }
