@@ -6,7 +6,7 @@ import (
 
 // Stream represents a sequence of integers that can be processed using functional operations.
 type Stream struct {
-	// Add your fields here
+	// TODO: Add your fields here
 }
 
 // NewStream creates a new Stream from a slice of integers.

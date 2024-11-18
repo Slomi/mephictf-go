@@ -236,6 +236,41 @@ func TestStreamFoldLeft(t *testing.T) {
 	}
 }
 
+func TestStreamForEach(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []int
+		expected []int
+	}{
+		{
+			name:     "collect_values",
+			input:    []int{1, 2, 3},
+			expected: []int{1, 2, 3},
+		},
+		{
+			name:     "empty_stream",
+			input:    []int{},
+			expected: []int{},
+		},
+		{
+			name:     "single_element",
+			input:    []int{42},
+			expected: []int{42},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			stream := NewStream(slices.Values(tc.input))
+			var result []int
+			stream.ForEach(func(x int) {
+				result = append(result, x)
+			})
+			require.Equal(t, tc.expected, result)
+		})
+	}
+}
+
 func TestInfiniteSequence(t *testing.T) {
 	count := func(x int) iter.Seq[int] {
 		return func(yield func(int) bool) {
