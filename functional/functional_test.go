@@ -301,7 +301,7 @@ func TestStreamCombined(t *testing.T) {
 		Map(func(x int) int { return x * 3 }).
 		Filter(func(x int) bool { return x%2 != 0 }).
 		Drop(1).
-		Drop(2).
+		Take(2).
 		Map(func(x int) int { return x + 1 }).
 		Iterate()
 
