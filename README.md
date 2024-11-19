@@ -36,6 +36,7 @@
 2. Packages, structs, interfaces, stdlib and iterators
    - [shapes](/shapes/shapes.go)
    - [functional](/functional/functional.go)
+   - [logparser](/logparser/logreader.go)
 
 ## Contribution
 
